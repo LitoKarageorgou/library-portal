@@ -30,7 +30,7 @@ db.get('SELECT COUNT(*) as count FROM books', (err, row) => { // db.get is used 
         db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["To Kill a Mockingbird", "Harper Lee", 2]);
         db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["The Great Gatsby", "F. Scott Fitzgerald", 5]);
         db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["Pride and Prejudice", "Jane Austen", 3]);
-        db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["The Catcher in the Rye", "J.D. Salinger", 6]);
+        db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["The Catcher in the Rye", "J.D. Salinger", 4]);
     }
 });
 
