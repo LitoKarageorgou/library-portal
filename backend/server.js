@@ -55,6 +55,65 @@ app.post('/books', (req, res) => {
 });
 
 
+// Update an existing book by its id
+app.put('/books/:id', (req, res) => {
+  console.log("PUT request received for id:", req.params.id, "with body:", req.body);
+  // Extract title, author, copies from the request body
+  const { title, author, copies } = req.body;
+
+  // Extract the id from the URL parameter (:id)
+  const { id } = req.params;
+
+  // Run an UPDATE SQL query to modify the book with the given id
+  db.run(
+    `UPDATE books SET title = ?, author = ?, copies = ? WHERE id = ?`,
+    [title, author, copies, id], // replace ? placeholders with actual values
+    function (err) { // callback runs after query is done
+      if (err) {
+        // If something went wrong with the database query
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      if (this.changes === 0) {
+        // If no row was updated, means the book with given id doesn't exist
+        res.status(404).json({ error: "Book not found" });
+        return;
+      }
+      // If update succeeded, send back the updated book data
+      res.json({ id, title, author, copies });
+    }
+  );
+});
+
+
+// Delete an existing book by its id
+app.delete('/books/:id', (req, res) => {
+  // Extract the id from the URL parameter (:id)
+  const { id } = req.params;
+
+  // Run a DELETE SQL query to remove the book with the given id
+  db.run(
+    `DELETE FROM books WHERE id = ?`,
+    id, // value to replace ? in the query
+    function (err) { // callback runs after query is done
+      if (err) {
+        // If something went wrong with the database query
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      if (this.changes === 0) {
+        // If no row was deleted, means the book with given id doesn't exist
+        res.status(404).json({ error: "Book not found" });
+        return;
+      }
+      // If delete succeeded, send back a success message
+      res.json({ message: "Book deleted successfully" });
+    }
+  );
+});
+
+
+
 // Starts the server and listens to the 3001 port
 app.listen(PORT,() => { // opens the 3001 port and then runs the callback function
     console.log(`Server running on http://localhost:${PORT}`); // callback function, executed once the server is successfully running
