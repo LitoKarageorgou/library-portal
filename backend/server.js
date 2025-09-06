@@ -1,128 +1,73 @@
-// Loads the express framework into the project
 const express = require('express');
-
-// Imports the database object from the database.js file
-const db =  require("./database");
-
-// Creates the application object upon which routes are defined
+const db = require("./database");
 const app = express();
-
-// Sets the port where the server will run
 const PORT = 3001;
 
-// Middleware to parse (= extract) JSON data from incoming requests
-app.use(express.json()); 
+app.use(express.json());
 
-// When a GET request is made to the root route, send "Hello world from the backend!" as a response
+// ---------- ROOT ----------
+// Basic check route to confirm the backend is running
 app.get('/', (req, res) => {
-    res.send('Hello world from the backend!');
-}
-);
-
-// ---------- BOOKS ROUTES ----------
-// When a GET request is made to the /books route, send all book entries from the database as a JSON response
-app.get('/books', (req, res) => { // When a request is made to the /books route run the following callback function
-    db.all("SELECT * FROM books", (err, rows) => { // Runs the SQL query to select all entries from the books table
-         // The callback function is executed once the database query is complete
-        if (err) {
-            res.status(500).json({ error: err.message }); // If there is an error, send a 500 status code (Internal Server Error) and the error message as a JSON response
-            return; // Stops the function execution
-        }
-        res.json(rows); // If no error, send the rows as a JSON response
-    });
+  res.send('Library Portal Backend is running');
 });
 
+// ---------- BOOKS ROUTES ----------
+// Get all books
+app.get('/books', (req, res) => {
+  db.all("SELECT * FROM books", (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
 
-// When a POST request is made to the /books route, add a new book entry to the database
+// Add a new book
 app.post('/books', (req, res) => {
   const { title, author, copies } = req.body;
-
   db.run(
     `INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`,
     [title, author, copies],
-    function (err) { // Callback function that runs after the database query is complete, if there is an error it sends a 500 status code
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.status(201).json({ // If no error, send a 201 status code (Created) and the new book entry as a JSON response
-        id: this.lastID, // this.lastID contains the ID of the last inserted row
-        title,
-        author,
-        copies
-      });
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({ id: this.lastID, title, author, copies });
     }
   );
 });
 
-
-// Update an existing book by its id
+// Update book by id
 app.put('/books/:id', (req, res) => {
-  console.log("PUT request received for id:", req.params.id, "with body:", req.body);
-  // Extract title, author, copies from the request body
   const { title, author, copies } = req.body;
-
-  // Extract the id from the URL parameter (:id)
   const { id } = req.params;
 
-  // Run an UPDATE SQL query to modify the book with the given id
   db.run(
     `UPDATE books SET title = ?, author = ?, copies = ? WHERE id = ?`,
-    [title, author, copies, id], // replace ? placeholders with actual values
-    function (err) { // callback runs after query is done
-      if (err) {
-        // If something went wrong with the database query
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      if (this.changes === 0) {
-        // If no row was updated, means the book with given id doesn't exist
-        res.status(404).json({ error: "Book not found" });
-        return;
-      }
-      // If update succeeded, send back the updated book data
+    [title, author, copies, id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) return res.status(404).json({ error: "Book not found" });
       res.json({ id, title, author, copies });
     }
   );
 });
 
-
-// Delete an existing book by its id
+// Delete book by id
 app.delete('/books/:id', (req, res) => {
-  // Extract the id from the URL parameter (:id)
   const { id } = req.params;
-
-  // Run a DELETE SQL query to remove the book with the given id
   db.run(
     `DELETE FROM books WHERE id = ?`,
-    id, // value to replace ? in the query
-    function (err) { // callback runs after query is done
-      if (err) {
-        // If something went wrong with the database query
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      if (this.changes === 0) {
-        // If no row was deleted, means the book with given id doesn't exist
-        res.status(404).json({ error: "Book not found" });
-        return;
-      }
-      // If delete succeeded, send back a success message
+    id,
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) return res.status(404).json({ error: "Book not found" });
       res.json({ message: "Book deleted successfully" });
     }
   );
 });
 
-
 // ---------- STUDENTS ROUTES ----------
-
 // Get all students
 app.get('/students', (req, res) => {
   db.all("SELECT * FROM students", (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
+    if (err) return res.status(500).json({ error: err.message });
     res.json(rows);
   });
 });
@@ -130,26 +75,17 @@ app.get('/students', (req, res) => {
 // Add a new student
 app.post('/students', (req, res) => {
   const { name, email, class: studentClass } = req.body;
-
   db.run(
     `INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
     [name, email, studentClass],
     function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      res.status(201).json({
-        id: this.lastID,
-        name,
-        email,
-        class: studentClass
-      });
+      if (err) return res.status(500).json({ error: err.message });
+      res.status(201).json({ id: this.lastID, name, email, class: studentClass });
     }
   );
 });
 
-// Update an existing student by its id
+// Update student by id
 app.put('/students/:id', (req, res) => {
   const { name, email, class: studentClass } = req.body;
   const { id } = req.params;
@@ -158,42 +94,117 @@ app.put('/students/:id', (req, res) => {
     `UPDATE students SET name = ?, email = ?, class = ? WHERE id = ?`,
     [name, email, studentClass, id],
     function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      if (this.changes === 0) {
-        res.status(404).json({ error: "Student not found" });
-        return;
-      }
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) return res.status(404).json({ error: "Student not found" });
       res.json({ id, name, email, class: studentClass });
     }
   );
 });
 
-// Delete an existing student by its id
+// Delete student by id
 app.delete('/students/:id', (req, res) => {
   const { id } = req.params;
-
   db.run(
     `DELETE FROM students WHERE id = ?`,
     id,
     function (err) {
-      if (err) {
-        res.status(500).json({ error: err.message });
-        return;
-      }
-      if (this.changes === 0) {
-        res.status(404).json({ error: "Student not found" });
-        return;
-      }
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) return res.status(404).json({ error: "Student not found" });
       res.json({ message: "Student deleted successfully" });
     }
   );
 });
 
+// ---------- BORROWINGS ROUTES ----------
+// Get all borrowings
+app.get('/borrowings', (req, res) => {
+  db.all(
+    `SELECT b.id, s.name AS student_name, bk.title AS book_title, 
+            b.borrowed_at, b.due_date, b.returned_at
+     FROM borrowings b
+     JOIN students s ON b.student_id = s.id
+     JOIN books bk ON b.book_id = bk.id`,
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
 
-// Starts the server and listens to the 3001 port
-app.listen(PORT,() => { // opens the 3001 port and then runs the callback function
-    console.log(`Server running on http://localhost:${PORT}`); // callback function, executed once the server is successfully running
-})
+// Create a new borrowing (student borrows a book)
+app.post('/borrowings', (req, res) => {
+  const { student_id, book_id } = req.body;
+
+  // Check how many active borrowings the student has
+  db.get(
+    `SELECT COUNT(*) as count FROM borrowings WHERE student_id = ? AND returned_at IS NULL`,
+    [student_id],
+    (err, row) => {
+      if (err) return res.status(500).json({ error: err.message });
+      if (row.count >= 3) return res.status(400).json({ error: "Student already has 3 borrowed books" });
+
+      // Check available copies for the book
+      db.get(`SELECT copies FROM books WHERE id = ?`, [book_id], (err, book) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!book || book.copies <= 0) return res.status(400).json({ error: "No available copies of this book" });
+
+        // Insert borrowing with due_date = 30 days from now
+        const due_date = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+        db.run(
+          `INSERT INTO borrowings (student_id, book_id, due_date) VALUES (?, ?, ?)`,
+          [student_id, book_id, due_date],
+          function (err) {
+            if (err) return res.status(500).json({ error: err.message });
+
+            // Decrease book copies
+            db.run(
+              `UPDATE books SET copies = copies - 1 WHERE id = ?`,
+              [book_id],
+              (err) => {
+                if (err) return res.status(500).json({ error: err.message });
+                res.status(201).json({
+                  id: this.lastID,
+                  student_id,
+                  book_id,
+                  borrowed_at: new Date().toISOString(),
+                  due_date,
+                  returned_at: null
+                });
+              }
+            );
+          }
+        );
+      });
+    }
+  );
+});
+
+// Return a borrowed book
+app.put('/borrowings/:id/return', (req, res) => {
+  const { id } = req.params;
+
+  // Mark borrowing as returned
+  db.run(
+    `UPDATE borrowings SET returned_at = datetime('now') WHERE id = ? AND returned_at IS NULL`,
+    [id],
+    function (err) {
+      if (err) return res.status(500).json({ error: err.message });
+      if (this.changes === 0) return res.status(404).json({ error: "Borrowing not found or already returned" });
+
+      // Increase book copies back
+      db.run(
+        `UPDATE books SET copies = copies + 1 WHERE id = (SELECT book_id FROM borrowings WHERE id = ?)`,
+        [id],
+        function (err2) {
+          if (err2) return res.status(500).json({ error: err2.message });
+          res.json({ message: "Book returned successfully" });
+        }
+      );
+    }
+  );
+});
+
+// ---------- START SERVER ----------
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});
