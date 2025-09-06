@@ -19,6 +19,7 @@ app.get('/', (req, res) => {
 }
 );
 
+// ---------- BOOKS ROUTES ----------
 // When a GET request is made to the /books route, send all book entries from the database as a JSON response
 app.get('/books', (req, res) => { // When a request is made to the /books route run the following callback function
     db.all("SELECT * FROM books", (err, rows) => { // Runs the SQL query to select all entries from the books table
@@ -112,6 +113,84 @@ app.delete('/books/:id', (req, res) => {
   );
 });
 
+
+// ---------- STUDENTS ROUTES ----------
+
+// Get all students
+app.get('/students', (req, res) => {
+  db.all("SELECT * FROM students", (err, rows) => {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.json(rows);
+  });
+});
+
+// Add a new student
+app.post('/students', (req, res) => {
+  const { name, email, class: studentClass } = req.body;
+
+  db.run(
+    `INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
+    [name, email, studentClass],
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      res.status(201).json({
+        id: this.lastID,
+        name,
+        email,
+        class: studentClass
+      });
+    }
+  );
+});
+
+// Update an existing student by its id
+app.put('/students/:id', (req, res) => {
+  const { name, email, class: studentClass } = req.body;
+  const { id } = req.params;
+
+  db.run(
+    `UPDATE students SET name = ?, email = ?, class = ? WHERE id = ?`,
+    [name, email, studentClass, id],
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      if (this.changes === 0) {
+        res.status(404).json({ error: "Student not found" });
+        return;
+      }
+      res.json({ id, name, email, class: studentClass });
+    }
+  );
+});
+
+// Delete an existing student by its id
+app.delete('/students/:id', (req, res) => {
+  const { id } = req.params;
+
+  db.run(
+    `DELETE FROM students WHERE id = ?`,
+    id,
+    function (err) {
+      if (err) {
+        res.status(500).json({ error: err.message });
+        return;
+      }
+      if (this.changes === 0) {
+        res.status(404).json({ error: "Student not found" });
+        return;
+      }
+      res.json({ message: "Student deleted successfully" });
+    }
+  );
+});
 
 
 // Starts the server and listens to the 3001 port

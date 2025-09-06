@@ -12,12 +12,23 @@ const db = new sqlite3.Database('./library.db');
 // title and author are text fields that cannot be null
 // copies is an integer field that cannot be null
 db.serialize(() => { // serialize ensures that the commands are executed in order
+  // Creates books table
     db.run(`
         CREATE TABLE IF NOT EXISTS books (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
       author TEXT NOT NULL,
       copies INTEGER NOT NULL
+    )
+  `);
+
+  //Creates students table
+   db.run(`
+    CREATE TABLE IF NOT EXISTS students (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      email TEXT UNIQUE NOT NULL,
+      class TEXT
     )
   `);
 });
@@ -33,6 +44,19 @@ db.get('SELECT COUNT(*) as count FROM books', (err, row) => { // db.get is used 
         db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["The Catcher in the Rye", "J.D. Salinger", 4]);
     }
 });
+
+// Insert some dummy students if table is empty
+db.get('SELECT COUNT(*) as count FROM students', (err, row) => {
+  if (row.count === 0) {
+    db.run(`INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
+      ["Alice Johnson", "alice@example.com", "A1"]);
+    db.run(`INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
+      ["Bob Smith", "bob@example.com", "B2"]);
+    db.run(`INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
+      ["Charlie Brown", "charlie@example.com", "C3"]);
+  }
+});
+
 
 // Exports the database object for use in other files
 module.exports = db;
