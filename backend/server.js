@@ -116,21 +116,6 @@ app.delete('/students/:id', (req, res) => {
 });
 
 // ---------- BORROWINGS ROUTES ----------
-// Get all borrowings
-app.get('/borrowings', (req, res) => {
-  db.all(
-    `SELECT b.id, s.name AS student_name, bk.title AS book_title, 
-            b.borrowed_at, b.due_date, b.returned_at
-     FROM borrowings b
-     JOIN students s ON b.student_id = s.id
-     JOIN books bk ON b.book_id = bk.id`,
-    (err, rows) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json(rows);
-    }
-  );
-});
-
 // Create a new borrowing (student borrows a book)
 app.post('/borrowings', (req, res) => {
   const { student_id, book_id } = req.body;
@@ -149,7 +134,7 @@ app.post('/borrowings', (req, res) => {
         if (!book || book.copies <= 0) return res.status(400).json({ error: "No available copies of this book" });
 
         // Insert borrowing with due_date = 30 days from now
-        const due_date = new Date(Date.now() + 30*24*60*60*1000).toISOString();
+        const due_date = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
         db.run(
           `INSERT INTO borrowings (student_id, book_id, due_date) VALUES (?, ?, ?)`,
           [student_id, book_id, due_date],
