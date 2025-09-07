@@ -2,8 +2,10 @@ const express = require('express');
 const db = require("./database");
 const app = express();
 const PORT = 3001;
+const cors = require("cors");
 
 app.use(express.json());
+app.use(cors());
 
 // ---------- ROOT ----------
 // Basic check route to confirm the backend is running
@@ -188,6 +190,21 @@ app.put('/borrowings/:id/return', (req, res) => {
     }
   );
 });
+
+// Get all borrowings
+app.get('/borrowings', (req, res) => {
+  db.all(
+    `SELECT borrowings.*, students.name AS student_name, books.title AS book_title
+     FROM borrowings
+     JOIN students ON borrowings.student_id = students.id
+     JOIN books ON borrowings.book_id = books.id`,
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
+
 
 // ---------- START SERVER ----------
 app.listen(PORT, () => {
