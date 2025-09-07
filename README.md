@@ -1,11 +1,10 @@
 # 📚 Library Portal
 
 A **full-stack web application** for managing a library system.  
-Built with **React (Vite + Tailwind)** on the frontend and **Express + SQLite** on the backend.  
+Built with **React** on the frontend and **Express + SQLite** on the backend.  
 
 It allows users to:
-- Manage **Books** (create, edit, delete, view)
-- Manage **Students**
+- Perform full CRUD operations on **Books** and **Students**
 - Handle **Borrowings** with rules:
   - Max 3 active borrowings per student
   - 30-day due dates
@@ -24,7 +23,7 @@ It allows users to:
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/your-username/library-portal.git
+git clone https://github.com/LitoKarageorgou/library-portal.git
 cd library-portal
 ```
 
@@ -38,18 +37,14 @@ node server.js
 
 ### 3. Start the frontend
 ```bash
-cd ../frontend
+cd frontend
 npm install
 npm run dev
 ```
 👉 Runs on [http://localhost:5173](http://localhost:5173)
 
 ### 4. Environment Variables
-Create a `.env` file inside `frontend/` with:
-```ini
-VITE_API_URL=http://localhost:3001
-```
-
+#### An `.env` file is already included for convenience.  
 ---
 
 ## 📸 Preview
@@ -60,6 +55,5 @@ VITE_API_URL=http://localhost:3001
 
 ---
 
-## 📝 Note
-This project was developed as part of a technical assessment.  
-It is intended solely for demonstration purposes.
+## 🖼️ Assets
+The icons used in this project are from [Flaticon](https://www.flaticon.com/) and are included for demonstration purposes only.
