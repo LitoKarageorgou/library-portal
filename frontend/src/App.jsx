@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Home from "./Home";
+import Home from "./components/Home.jsx";
 import Books from "./components/Books.jsx";
 import Students from "./components/Students.jsx";
 import Borrowings from "./components/Borrowings.jsx";
 
-
+// Main application with routes
 export default function App() {
   return (
     <BrowserRouter>

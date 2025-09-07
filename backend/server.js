@@ -7,13 +7,15 @@ const cors = require("cors");
 app.use(express.json());
 app.use(cors());
 
-// ---------- ROOT ----------
-// Basic check route to confirm the backend is running
+// ===== Root route =====
+
+// Basic check to confirm the backend is running
 app.get('/', (req, res) => {
   res.send('Library Portal Backend is running');
 });
 
-// ---------- BOOKS ROUTES ----------
+// ===== Books routes =====
+
 // Get all books
 app.get('/books', (req, res) => {
   db.all("SELECT * FROM books", (err, rows) => {
@@ -65,7 +67,8 @@ app.delete('/books/:id', (req, res) => {
   );
 });
 
-// ---------- STUDENTS ROUTES ----------
+// ===== Students routes =====
+
 // Get all students
 app.get('/students', (req, res) => {
   db.all("SELECT * FROM students", (err, rows) => {
@@ -117,8 +120,23 @@ app.delete('/students/:id', (req, res) => {
   );
 });
 
-// ---------- BORROWINGS ROUTES ----------
-// Create a new borrowing (student borrows a book)
+// ===== Borrowings routes =====
+
+// Get all borrowings
+app.get('/borrowings', (req, res) => {
+  db.all(
+    `SELECT borrowings.*, students.name AS student_name, books.title AS book_title
+     FROM borrowings
+     JOIN students ON borrowings.student_id = students.id
+     JOIN books ON borrowings.book_id = books.id`,
+    (err, rows) => {
+      if (err) return res.status(500).json({ error: err.message });
+      res.json(rows);
+    }
+  );
+});
+
+// Add a new borrowing (student borrows a book)
 app.post('/borrowings', (req, res) => {
   const { student_id, book_id } = req.body;
 
@@ -191,22 +209,7 @@ app.put('/borrowings/:id/return', (req, res) => {
   );
 });
 
-// Get all borrowings
-app.get('/borrowings', (req, res) => {
-  db.all(
-    `SELECT borrowings.*, students.name AS student_name, books.title AS book_title
-     FROM borrowings
-     JOIN students ON borrowings.student_id = students.id
-     JOIN books ON borrowings.book_id = books.id`,
-    (err, rows) => {
-      if (err) return res.status(500).json({ error: err.message });
-      res.json(rows);
-    }
-  );
-});
-
-
-// ---------- START SERVER ----------
+// ===== Start server =====
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

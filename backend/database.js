@@ -2,7 +2,7 @@ const sqlite3 = require('sqlite3').verbose();
 const db = new sqlite3.Database('./library.db');
 
 db.serialize(() => {
-  // Books table
+  // Create Books table
   db.run(`
     CREATE TABLE IF NOT EXISTS books (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -12,7 +12,7 @@ db.serialize(() => {
     )
   `);
 
-  // Students table
+  // Create Students table
   db.run(`
     CREATE TABLE IF NOT EXISTS students (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,7 +22,7 @@ db.serialize(() => {
     )
   `);
 
-  // Borrowings table
+  // Create Borrowings table
   db.run(`
     CREATE TABLE IF NOT EXISTS borrowings (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,26 +37,47 @@ db.serialize(() => {
   `);
 });
 
-// Insert dummy books so that we have some data to work with
+// Insert sample books if table is empty
 db.get('SELECT COUNT(*) as count FROM books', (err, row) => {
   if (row.count === 0) {
-    db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["1984", "George Orwell", 4]);
-    db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["To Kill a Mockingbird", "Harper Lee", 2]);
-    db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["The Great Gatsby", "F. Scott Fitzgerald", 5]);
-    db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["Pride and Prejudice", "Jane Austen", 3]);
-    db.run(`INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`, ["The Catcher in the Rye", "J.D. Salinger", 4]);
+    db.run(
+      `INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`,
+      ["1984", "George Orwell", 4]
+    );
+    db.run(
+      `INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`,
+      ["To Kill a Mockingbird", "Harper Lee", 2]
+    );
+    db.run(
+      `INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`,
+      ["The Great Gatsby", "F. Scott Fitzgerald", 5]
+    );
+    db.run(
+      `INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`,
+      ["Pride and Prejudice", "Jane Austen", 3]
+    );
+    db.run(
+      `INSERT INTO books (title, author, copies) VALUES (?, ?, ?)`,
+      ["The Catcher in the Rye", "J.D. Salinger", 4]
+    );
   }
 });
 
-// Insert dummy students so that we have some data to work with
+// Insert sample students if table is empty
 db.get('SELECT COUNT(*) as count FROM students', (err, row) => {
   if (row.count === 0) {
-    db.run(`INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
-      ["Alice Johnson", "alice@example.com", "A1"]);
-    db.run(`INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
-      ["Bob Smith", "bob@example.com", "B2"]);
-    db.run(`INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
-      ["Charlie Brown", "charlie@example.com", "C3"]);
+    db.run(
+      `INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
+      ["Alice Johnson", "alice@example.com", "A1"]
+    );
+    db.run(
+      `INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
+      ["Bob Smith", "bob@example.com", "B2"]
+    );
+    db.run(
+      `INSERT INTO students (name, email, class) VALUES (?, ?, ?)`,
+      ["Charlie Brown", "charlie@example.com", "C3"]
+    );
   }
 });
 

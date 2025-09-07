@@ -1,28 +1,29 @@
-// src/Borrowings.jsx
 import { useEffect, useState } from "react";
 import { fetchJSON } from "../api/client";
 import { FaUndoAlt } from "react-icons/fa";
 import BackHomeButton from "./BackHomeButton";
 
 export default function Borrowings() {
-  // Lists for table & dropdowns
-  const [borrowings, setBorrowings] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [books, setBooks] = useState([]);
+  // State variables
+  const [borrowings, setBorrowings] = useState([]); // list of borrowings
+  const [students, setStudents] = useState([]); // list of students
+  const [books, setBooks] = useState([]); // list of books
 
-  // New borrowing form state
+  // Form state for new borrowing
   const [newBorrowing, setNewBorrowing] = useState({
     student_id: "",
     book_id: "",
   });
 
-  // Modal state for return confirmation
-  const [confirmReturn, setConfirmReturn] = useState(null); // holds borrowing id
+  // Modal state for return confirmation (holds borrowing id)
+  const [confirmReturn, setConfirmReturn] = useState(null);
 
+  // Fetch all data on mount
   useEffect(() => {
     fetchAll();
   }, []);
 
+  // Load borrowings, students, and books from API
   async function fetchAll() {
     const [b, s, bk] = await Promise.all([
       fetchJSON("/borrowings"),
@@ -62,12 +63,14 @@ export default function Borrowings() {
     }
   }
 
-  // small formatter to show only date
+  // Format ISO date string to simple date
   const fmt = (iso) => (iso ? new Date(iso).toLocaleDateString() : "-");
 
-  // quick helpers to map ids to names/titles
+  // Helper: get student name from id
   const studentName = (id) =>
     students.find((s) => s.id === id)?.name || `#${id}`;
+
+  // Helper: get book title from id
   const bookTitle = (id) =>
     books.find((b) => b.id === id)?.title || `#${id}`;
 
@@ -75,11 +78,12 @@ export default function Borrowings() {
     <div className="p-6">
       <h2 className="text-2xl font-bold mb-4">Borrowings</h2>
 
-      {/* Add new borrowing */}
+      {/* Add new borrowing form */}
       <form
         onSubmit={addBorrowing}
         className="mb-6 flex gap-4 items-end bg-gray-100 p-4 rounded"
       >
+        {/* Student dropdown */}
         <div className="flex-1">
           <label className="block text-sm mb-1">Student</label>
           <select
@@ -99,6 +103,7 @@ export default function Borrowings() {
           </select>
         </div>
 
+        {/* Book dropdown */}
         <div className="flex-1">
           <label className="block text-sm mb-1">Book</label>
           <select
@@ -118,6 +123,7 @@ export default function Borrowings() {
           </select>
         </div>
 
+        {/* Submit button */}
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -195,6 +201,7 @@ export default function Borrowings() {
           </div>
         </div>
       )}
+
       <BackHomeButton />
     </div>
   );
