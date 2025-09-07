@@ -1,164 +1,166 @@
 import { useEffect, useState } from "react";
-import { fetchJSON } from "./api/client";
+import { fetchJSON } from "../api/client";
 import { FaEdit, FaTrash } from "react-icons/fa";
+import BackHomeButton from "./BackHomeButton";
 
-export default function Students() {
+export default function Books() {
   // State variables
-  const [students, setStudents] = useState([]); // list of students
-  const [editingStudent, setEditingStudent] = useState(null); // currently editing student id
-  const [form, setForm] = useState({ name: "", email: "", class: "" }); // edit form state
-  const [newStudent, setNewStudent] = useState({ name: "", email: "", class: "" }); // add form state
-  const [confirmDelete, setConfirmDelete] = useState(null); // holds student id to delete
+  const [books, setBooks] = useState([]); // list of books
+  const [editingBook, setEditingBook] = useState(null); // currently editing book id
+  const [form, setForm] = useState({ title: "", author: "", copies: "" }); // edit form state
+  const [newBook, setNewBook] = useState({ title: "", author: "", copies: "" }); // add form state
+  const [confirmDelete, setConfirmDelete] = useState(null); // holds book id to delete
 
-  // Fetch students on mount
+  // Fetch books on mount
   useEffect(() => {
-    fetchStudents();
+    fetchBooks();
   }, []);
 
-  // Load students from API
-  async function fetchStudents() {
-    const data = await fetchJSON("/students");
-    setStudents(data);
+  // Load books from API
+  async function fetchBooks() {
+    const data = await fetchJSON("/books");
+    setBooks(data);
   }
 
-  // Delete a student
-  async function deleteStudent(id) {
+  // Delete a book
+  async function deleteBook(id) {
     try {
-      await fetchJSON(`/students/${id}`, { method: "DELETE" });
-      fetchStudents();
+      await fetchJSON(`/books/${id}`, { method: "DELETE" });
+      fetchBooks();
     } catch (err) {
-      alert("Error deleting student: " + err.message);
+      alert("Error deleting book: " + err.message);
     }
   }
 
-  // Start editing a student
-  function startEdit(student) {
-    setEditingStudent(student.id);
-    setForm({ name: student.name, email: student.email, class: student.class });
+  // Start editing a book
+  function startEdit(book) {
+    setEditingBook(book.id);
+    setForm({ title: book.title, author: book.author, copies: book.copies });
   }
 
   // Cancel editing
   function cancelEdit() {
-    setEditingStudent(null);
-    setForm({ name: "", email: "", class: "" });
+    setEditingBook(null);
+    setForm({ title: "", author: "", copies: "" });
   }
 
-  // Save edited student
+  // Save edited book
   async function saveEdit(id) {
     try {
-      await fetchJSON(`/students/${id}`, {
+      await fetchJSON(`/books/${id}`, {
         method: "PUT",
         body: JSON.stringify(form),
       });
-      fetchStudents();
+      fetchBooks();
       cancelEdit();
     } catch (err) {
-      alert("Error updating student: " + err.message);
+      alert("Error updating book: " + err.message);
     }
   }
 
-  // Add a new student
-  async function addStudent(e) {
+  // Add a new book
+  async function addBook(e) {
     e.preventDefault();
     try {
-      await fetchJSON("/students", {
+      await fetchJSON("/books", {
         method: "POST",
-        body: JSON.stringify(newStudent),
+        body: JSON.stringify(newBook),
       });
-      setNewStudent({ name: "", email: "", class: "" }); // clear form
-      fetchStudents();
+      setNewBook({ title: "", author: "", copies: "" }); // clear form
+      fetchBooks();
     } catch (err) {
-      alert("Error adding student: " + err.message);
+      alert("Error adding book: " + err.message);
     }
   }
 
   return (
     <div className="p-6">
-      <h2 className="text-2xl font-bold mb-4">Students</h2>
+      <h2 className="text-2xl font-bold mb-4">Books</h2>
 
-      {/* Add new student form */}
+      {/* Add new book form */}
       <form
-        onSubmit={addStudent}
+        onSubmit={addBook}
         className="mb-6 flex gap-4 items-end bg-gray-100 p-4 rounded"
       >
         <input
-          value={newStudent.name}
-          onChange={(e) => setNewStudent({ ...newStudent, name: e.target.value })}
-          placeholder="Name"
+          value={newBook.title}
+          onChange={(e) => setNewBook({ ...newBook, title: e.target.value })}
+          placeholder="Title"
           className="border p-2 flex-1"
           required
         />
         <input
-          type="email"
-          value={newStudent.email}
-          onChange={(e) => setNewStudent({ ...newStudent, email: e.target.value })}
-          placeholder="Email"
+          value={newBook.author}
+          onChange={(e) => setNewBook({ ...newBook, author: e.target.value })}
+          placeholder="Author"
           className="border p-2 flex-1"
           required
         />
         <input
-          value={newStudent.class}
-          onChange={(e) => setNewStudent({ ...newStudent, class: e.target.value })}
-          placeholder="Class"
+          type="number"
+          value={newBook.copies}
+          onChange={(e) => setNewBook({ ...newBook, copies: e.target.value })}
+          placeholder="Copies"
           className="border p-2 w-24"
+          required
         />
         <button
           type="submit"
           className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
         >
-          Add Student
+          Add Book
         </button>
       </form>
 
-      {/* Students table */}
+      {/* Books table */}
       <table className="table-auto w-full border-collapse border border-gray-300 shadow">
         <thead className="bg-gray-100">
           <tr>
             <th className="border px-4 py-2">ID</th>
-            <th className="border px-4 py-2">Name</th>
-            <th className="border px-4 py-2">Email</th>
-            <th className="border px-4 py-2">Class</th>
+            <th className="border px-4 py-2">Title</th>
+            <th className="border px-4 py-2">Author</th>
+            <th className="border px-4 py-2">Copies</th>
             <th className="border px-4 py-2">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {students.map((student) => (
-            <tr key={student.id} className="text-center">
-              {editingStudent === student.id ? (
+          {books.map((book) => (
+            <tr key={book.id} className="text-center">
+              {editingBook === book.id ? (
                 // Edit mode row
                 <>
-                  <td className="border px-4 py-2">{student.id}</td>
+                  <td className="border px-4 py-2">{book.id}</td>
                   <td className="border px-4 py-2">
                     <input
-                      value={form.name}
+                      value={form.title}
                       onChange={(e) =>
-                        setForm({ ...form, name: e.target.value })
+                        setForm({ ...form, title: e.target.value })
                       }
                       className="border p-1 w-full"
                     />
                   </td>
                   <td className="border px-4 py-2">
                     <input
-                      type="email"
-                      value={form.email}
+                      value={form.author}
                       onChange={(e) =>
-                        setForm({ ...form, email: e.target.value })
+                        setForm({ ...form, author: e.target.value })
                       }
                       className="border p-1 w-full"
                     />
                   </td>
                   <td className="border px-4 py-2">
                     <input
-                      value={form.class}
+                      type="number"
+                      value={form.copies}
                       onChange={(e) =>
-                        setForm({ ...form, class: e.target.value })
+                        setForm({ ...form, copies: e.target.value })
                       }
-                      className="border p-1 w-full"
+                      className="border p-1 w-20"
                     />
                   </td>
                   <td className="border px-4 py-2 flex gap-2 justify-center">
                     <button
-                      onClick={() => saveEdit(student.id)}
+                      onClick={() => saveEdit(book.id)}
                       className="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700"
                     >
                       Save
@@ -174,17 +176,17 @@ export default function Students() {
               ) : (
                 // View mode row
                 <>
-                  <td className="border px-4 py-2">{student.id}</td>
-                  <td className="border px-4 py-2">{student.name}</td>
-                  <td className="border px-4 py-2">{student.email}</td>
-                  <td className="border px-4 py-2">{student.class}</td>
+                  <td className="border px-4 py-2">{book.id}</td>
+                  <td className="border px-4 py-2">{book.title}</td>
+                  <td className="border px-4 py-2">{book.author}</td>
+                  <td className="border px-4 py-2">{book.copies}</td>
                   <td className="border px-4 py-2 flex gap-2 justify-center">
                     <FaEdit
-                      onClick={() => startEdit(student)}
+                      onClick={() => startEdit(book)}
                       className="text-blue-600 cursor-pointer hover:text-blue-800"
                     />
                     <FaTrash
-                      onClick={() => setConfirmDelete(student.id)}
+                      onClick={() => setConfirmDelete(book.id)}
                       className="text-red-600 cursor-pointer hover:text-red-800"
                     />
                   </td>
@@ -203,7 +205,7 @@ export default function Students() {
             <div className="flex gap-4 justify-end">
               <button
                 onClick={() => {
-                  deleteStudent(confirmDelete);
+                  deleteBook(confirmDelete);
                   setConfirmDelete(null);
                 }}
                 className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
@@ -220,6 +222,7 @@ export default function Students() {
           </div>
         </div>
       )}
+      <BackHomeButton />
     </div>
   );
 }

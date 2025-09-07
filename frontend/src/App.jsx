@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./Home";
-import Books from "./Books";
-import Students from "./Students";
-import Borrowings from "./Borrowings";
+import Books from "./components/Books.jsx";
+import Students from "./components/Students.jsx";
+import Borrowings from "./components/Borrowings.jsx";
+
 
 export default function App() {
   return (

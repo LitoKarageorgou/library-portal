@@ -1,7 +1,8 @@
 // src/Borrowings.jsx
 import { useEffect, useState } from "react";
-import { fetchJSON } from "./api/client";
+import { fetchJSON } from "../api/client";
 import { FaUndoAlt } from "react-icons/fa";
+import BackHomeButton from "./BackHomeButton";
 
 export default function Borrowings() {
   // Lists for table & dropdowns
@@ -194,6 +195,7 @@ export default function Borrowings() {
           </div>
         </div>
       )}
+      <BackHomeButton />
     </div>
   );
 }
