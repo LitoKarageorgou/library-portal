@@ -52,6 +52,7 @@ npm run dev
 ![Books](./screenshots/books.png)
 ![Students](./screenshots/students.png)
 ![Borrowings](./screenshots/borrowings.png) 
+![Delete](./screenshots/delete-modal.png) 
 
 ---
 
